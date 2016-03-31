@@ -1,0 +1,6 @@
+aioredis==0.2.4
+hiredis==0.2.0
+msgpack-python==0.4.7
+py==1.4.31
+pytest==2.8.7
+zipdep.py==1.0.1
