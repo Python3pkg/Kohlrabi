@@ -30,7 +30,8 @@ class ClientTaskResult(object):
     @property
     def result(self):
         # Retrieve the result from redis.
-        return self.kohlrabi._loop.run_until_complete(self._redis_get_func_result())
+        # Stupidly long timeout, a little under twenty-five years.
+        return self.kohlrabi._loop.run_until_complete(self._redis_get_func_result(60**5))
 
     def result_with_timeout(self, timeout):
         return self.kohlrabi._loop.run_until_complete(self._redis_get_func_result(timeout=timeout))
