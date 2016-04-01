@@ -1,14 +1,12 @@
 """
 Main server class.
 """
+import importlib
 import logging
-
 import sys
-import os
 import traceback
 
 from libkohlrabi.kohlrabi import Kohlrabi
-import importlib
 
 logging.basicConfig(filename='/dev/null', level=logging.DEBUG)
 

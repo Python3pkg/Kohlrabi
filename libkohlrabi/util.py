@@ -1,8 +1,6 @@
 """
 Utilities.
 """
-import os
-import sys
 import asyncio
 
 SIDE_CLIENT = 0

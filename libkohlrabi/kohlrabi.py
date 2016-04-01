@@ -2,17 +2,15 @@
 Kohlrabi object class.
 """
 import asyncio
-import types
-import random
-import os
 import logging
+import os
+import random
 
 import aioredis
 import msgpack
 
-from libkohlrabi.tasks import TaskBase, ServerTaskBase, ClientTaskBase
 from libkohlrabi import VERSION_S
-from libkohlrabi import util
+from libkohlrabi.tasks import TaskBase, ServerTaskBase, ClientTaskBase
 
 logger = logging.getLogger("Kohlrabi")
 

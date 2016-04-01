@@ -1,10 +1,8 @@
 """
 Base task class.
 """
-import types
-import sys
-from libkohlrabi import util
 import asyncio
+import types
 
 
 class TaskBase(object):
