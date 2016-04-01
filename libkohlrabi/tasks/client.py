@@ -5,6 +5,29 @@ import asyncio
 from .base import TaskBase
 
 
+class ClientTaskResult(object):
+    """
+    An object that represents the result of a ClientTask.
+
+    Used to get the result of the coro.
+    """
+
+    def __init__(self, ack_id: int, task_id: str, kh):
+        self.ack_id = ack_id
+        self.task_id = task_id
+        self.kohlrabi = kh
+
+    @asyncio.coroutine
+    def _redis_get_func_result(self):
+        result = (yield from self.kohlrabi.get_msg(queue="{}-RESULT".format(self.ack_id)))
+        return result
+
+    @property
+    def result(self):
+        # Retrieve the result from redis.
+        return self.kohlrabi._loop.run_until_complete(self._redis_get_func_result())
+
+
 class ClientTaskBase(TaskBase):
     """
     Base class for a client-side task.
@@ -12,4 +35,5 @@ class ClientTaskBase(TaskBase):
 
     def invoke_func(self, *args, **kwargs):
         # Tell the Kohlrabi instance to pack it up and send it to the server.
-        self.loop.run_until_complete(self.kohlrabi.apply_task(self, *args, **kwargs))
+        ack_id = self.loop.run_until_complete(self.kohlrabi.apply_task(self, *args, **kwargs))
+        return ClientTaskResult(ack_id, self.task_id, self.kohlrabi)

@@ -145,6 +145,7 @@ class Kohlrabi(object):
         # Wait for the server to acknowledge the task
         acked = yield from self._wait_for_ack(ack_id)
         assert acked is True, "ack is NOT true - this should never happen!"
+        return ack_id
 
     @asyncio.coroutine
     def _wait_for_ack(self, ack_id: int) -> bool:

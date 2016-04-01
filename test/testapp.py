@@ -4,7 +4,7 @@ Test app for Kohlrabi
 from libkohlrabi import kohlrabi
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 # --> Init Kohlrabi
 kh = kohlrabi.Kohlrabi()
@@ -21,5 +21,12 @@ def a(arg1):
     yield from b("test")
 
 
+@kh.task
+def add(a, b):
+    return a + b
+
+
 if __name__ == "__main__":
     a("hello, world")
+    added = add(1, 2).result
+    print(added)
