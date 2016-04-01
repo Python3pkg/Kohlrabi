@@ -11,14 +11,16 @@ kh = kohlrabi.Kohlrabi()
 
 
 @kh.task
-def b(passed_s: str):
-    print("This is much more natural than Celery syntax.")
+def a(arg1):
+    # Print the argument passed to it.
+    print(arg1)
+    yield from b("test")
 
 
 @kh.task
-def a(arg1):
-    print(arg1)
-    yield from b("test")
+def b(passed_s: str):
+    print("This is much more natural than Celery syntax.")
+    print("String that was passed:", passed_s)
 
 
 @kh.task
@@ -27,6 +29,8 @@ def add(a, b):
 
 
 if __name__ == "__main__":
+    # Call a() with hello world.
+    # This is transmitted to the server.
     a("hello, world")
-    added = add(1, 2).result_with_timeout(0)
+    added = add(1, 2).result_with_timeout(1)
     print(added)
