@@ -5,6 +5,8 @@ import os
 import sys
 import asyncio
 
+SIDE_CLIENT = 0
+SIDE_SERVER = 1
 
 @asyncio.coroutine
 def wraps_future(fut: asyncio.Future, coro):

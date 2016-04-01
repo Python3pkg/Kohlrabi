@@ -12,10 +12,14 @@ class TaskBase(object):
     Base task.
     """
 
-    def __init__(self, func: types.FunctionType):
+    def __init__(self, kh, func: types.FunctionType, id=None):
         self._func = func
         self.coro = self._wrap_func(func)
         self.loop = asyncio.get_event_loop()
+
+        self.kohlrabi = kh
+
+        self.task_id = id if id else self._func.__module__ + "." + self._func.__name__
 
     def __call__(self, *args, **kwargs):
         return self.invoke_func(*args, **kwargs)

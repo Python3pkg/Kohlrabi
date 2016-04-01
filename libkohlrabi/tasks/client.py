@@ -11,4 +11,5 @@ class ClientTaskBase(TaskBase):
     """
 
     def invoke_func(self, *args, **kwargs):
-        pass
+        # Tell the Kohlrabi instance to pack it up and send it to the server.
+        self.loop.run_until_complete(self.kohlrabi.apply_task(self, *args, **kwargs))
