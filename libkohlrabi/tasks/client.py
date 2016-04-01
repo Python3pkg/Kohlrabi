@@ -3,6 +3,8 @@ Client-side task.
 """
 import asyncio
 
+import aioredis
+
 from .base import TaskBase
 
 
@@ -32,6 +34,16 @@ class ClientTaskResult(object):
 
     def result_with_timeout(self, timeout):
         return self.kohlrabi._loop.run_until_complete(self._redis_get_func_result(timeout=timeout))
+
+    @asyncio.coroutine
+    def _redis_get_func_finished(self):
+        with (yield from self.kohlrabi.redis_conn) as redis:
+            assert isinstance(redis, aioredis.Redis)
+            return redis.exists("{}-RESULT".format(self.ack_id))
+
+    @property
+    def finished(self):
+        return self.kohlrabi._loop.run_until_complete(self._redis_get_func_finished())
 
 
 class ClientTaskBase(TaskBase):
