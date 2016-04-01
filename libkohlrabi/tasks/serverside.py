@@ -3,12 +3,16 @@ Server-side Task.
 """
 import asyncio
 import sys
+import traceback
+import logging
+
+import aioredis
+import msgpack
 
 from .base import TaskBase
 
-# Check if we're Python 3.5
-PY35 = sys.version_info >= (3, 5, 0)
 
+logger = logging.getLogger("Kohlrabi")
 
 class ServerTaskBase(TaskBase):
     """
@@ -25,6 +29,18 @@ class ServerTaskBase(TaskBase):
     def invoke_func(self, ack_id, *args, **kwargs):
         # Yield from the coroutine.
         # This will run everything down the chain, hopefully.
-        result = (yield from self.coro(*args, **kwargs))  # Yield with the arguments passed in.
+        try:
+            result = (yield from self.coro(*args, **kwargs))  # Yield with the arguments passed in.
+        except Exception as e:
+            logger.debug("Caught error: {}".format(e))
+            with (yield from self.kohlrabi.redis_conn) as redis:
+                assert isinstance(redis, aioredis.Redis)
+                # Format the exception data.
+                tb = traceback.format_exc()
+                # Pack the exception data.
+                exc_data = msgpack.packb({"exc": e.__class__.__name__, "msg": ' '.join(e.args)})
+                redis.set("{}-EXC".format(ack_id), exc_data)
+                redis.set("{}-TB".format(ack_id), tb)
+                result = ""
         # Set the result in redis.
         yield from self.kohlrabi.send_msg(result, queue="{}-RESULT".format(ack_id))

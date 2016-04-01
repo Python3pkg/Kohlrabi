@@ -25,7 +25,7 @@ def b(passed_s: str):
 
 @kh.task
 def add(a, b):
-    return a + b
+    c
 
 
 if __name__ == "__main__":
