@@ -28,6 +28,6 @@ class ServerTaskBase(TaskBase):
     def invoke_func(self, ack_id, *args, **kwargs):
         # Yield from the coroutine.
         # This will run everything down the chain, hopefully.
-        result = (yield from self.coro(*args, **kwargs))
+        result = (yield from self.coro(*args, **kwargs))  # Yield with the arguments passed in.
         # Set the result in redis.
         yield from self.kohlrabi.send_msg(result, queue="{}-RESULT".format(ack_id))
