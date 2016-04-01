@@ -102,6 +102,12 @@ class Kohlrabi(object):
             assert isinstance(redis, aioredis.Redis)
             redis.decr("kohlrabi-workers")
 
+    @asyncio.coroutine
+    def _get_num_servers_registered(self):
+        with (yield from self.redis_conn) as redis:
+            assert isinstance(redis, aioredis.Redis)
+            return int((yield from redis.get("kohlrabi-workers")))
+
     def begin(self):
         """
         Start the Kohlrabi server.
@@ -111,6 +117,10 @@ class Kohlrabi(object):
         self._loop.create_task(self.serverside_task_loop())
 
         self._loop.run_until_complete(self._server_register_on_redis())
+
+        logger.info("Kohlrabi registered as worker {}.".format(
+            self._loop.run_until_complete(self._get_num_servers_registered())
+        ))
 
         try:
             self._loop.run_forever()
