@@ -36,6 +36,7 @@ class ClientTaskResult(object):
                 tb = yield from redis.get("{}-TB".format(self.ack_id))
                 if tb: tb = tb.decode()
                 print(tb, file=sys.stderr)
+                print("The above exception was the direct cause of the following exception:\n", file=sys.stderr)
             # try and load the attribute
             raise __builtins__[unpacked["exc"]](unpacked["msg"])
         return result
