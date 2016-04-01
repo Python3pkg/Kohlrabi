@@ -137,7 +137,13 @@ class Kohlrabi(object):
         The server side task loop. Fetches new tasks and executes them, as appropriate.
         """
         while True:
-            msg_data = yield from self.get_msg()
+            try:
+                msg_data = yield from self.get_msg()
+            except RuntimeError as e:
+                if e.args[0] == "Event loop is closed":
+                    return
+                else:
+                    raise
             logger.debug("Got new task: {}".format(msg_data))
             # On the server side, try and get the function.
             func_id = msg_data['id']
