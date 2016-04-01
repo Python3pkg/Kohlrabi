@@ -164,6 +164,10 @@ class Kohlrabi(object):
         Apply a task to be run.
 
         This is the main work house of Kohlrabi. It sends functions to run to the server side.
+
+        :param task: The ClientTaskBase to apply to the server side.
+        :param args: The args for the function to use
+        :param kwargs: The kwargs for the function to use
         """
         # First, generate a random ACK ID.
         ack_id = random.randint(10 ** 9, 10 ** 10)
@@ -189,7 +193,13 @@ class Kohlrabi(object):
 
     @asyncio.coroutine
     def get_msg(self, queue="kohlrabi-tasks"):
-        """Get a new message off of the redis queue."""
+        """
+        Get a new message off of the redis queue.
+
+        This will automatically msgpack-decode the data, so don't use if you want to get raw values.
+
+        :param queue: The queue to pick a message from.
+        """
         with (yield from self.redis_conn) as redis:
             assert isinstance(redis, aioredis.Redis)
             data = (yield from redis.blpop(queue))[1]
@@ -197,6 +207,15 @@ class Kohlrabi(object):
 
     @asyncio.coroutine
     def send_msg(self, to_send, queue="kohlrabi-tasks"):
+        """
+        Put a message onto the queue.
+
+        This will automatically msgpack-encode the data, including a 'use_bin_type' value so the resulting data can
+        be decoded in UTF-8 properly.
+
+        :param to_send: The data to send.
+        :param queue: The queue to send the data to.
+        """
         data = msgpack.packb(to_send, use_bin_type=True)
         with (yield from self.redis_conn) as redis:
             assert isinstance(redis, aioredis.Redis)
