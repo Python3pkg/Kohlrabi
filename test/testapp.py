@@ -12,15 +12,9 @@ kh = kohlrabi.Kohlrabi()
 
 @kh.task
 def a():
-    pass
+    print("Hello, world!")
 
 
-a()
+if __name__ == "__main__":
+    a()
 
-
-@kh.task
-def b():
-    pass
-
-
-b()
