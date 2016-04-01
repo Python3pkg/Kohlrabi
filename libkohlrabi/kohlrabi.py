@@ -127,7 +127,7 @@ class Kohlrabi(object):
                 redis.lpush("{}-ACK".format(msg_data["ack"]), 1)
             # Run it on the server-side.
             assert isinstance(task, ServerTaskBase), "Task invocation should be happening on the server side"
-            task.invoke_func(*msg_data["args"], **msg_data["kwargs"])
+            task.invoke_func(msg_data["ack"], *msg_data["args"], **msg_data["kwargs"])
 
     @asyncio.coroutine
     def apply_task(self, task: ClientTaskBase, *args, **kwargs):
@@ -149,14 +149,12 @@ class Kohlrabi(object):
     @asyncio.coroutine
     def _wait_for_ack(self, ack_id: int) -> bool:
         # Blocking pop {ack_id}-ACK.
-        with (yield from self.redis_conn) as redis:
-            assert isinstance(redis, aioredis.Redis)
-            data = (yield from redis.blpop("{}-ACK".format(ack_id)))[1]
-            data = int(data)
-            if data == 1:
-                return True
-            else:
-                return False
+        data = (yield from self.get_msg("{}-ACK".format(ack_id)))[1]
+        data = int(data)
+        if data == 1:
+            return True
+        else:
+            return False
 
     @asyncio.coroutine
     def get_msg(self, queue="kohlrabi-tasks"):

@@ -17,6 +17,9 @@ class ServerTaskBase(TaskBase):
     Base class for a server-side task.
     """
     @asyncio.coroutine
-    def invoke_func(self, *args, **kwargs):
-        # Send off to our helper function that handles setting values.
-        pass
+    def invoke_func(self, ack_id, *args, **kwargs):
+        # Yield from the coroutine.
+        # This will run everything down the chain, hopefully.
+        result = (yield from self.coro(*args, **kwargs))
+        # Set the result in redis.
+        yield from self.kohlrabi.send_msg("{}-RESULT".format(ack_id))
