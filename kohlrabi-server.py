@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 Kohlrabi is an asyncio-based task queue server.
 
