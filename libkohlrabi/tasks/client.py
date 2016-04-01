@@ -18,14 +18,19 @@ class ClientTaskResult(object):
         self.kohlrabi = kh
 
     @asyncio.coroutine
-    def _redis_get_func_result(self):
-        result = (yield from self.kohlrabi.get_msg(queue="{}-RESULT".format(self.ack_id)))
+    def _redis_get_func_result(self, timeout=30):
+        result = yield from asyncio.wait_for(
+            self.kohlrabi.get_msg(queue="{}-RESULT".format(self.ack_id)), timeout=timeout
+        )
         return result
 
     @property
     def result(self):
         # Retrieve the result from redis.
         return self.kohlrabi._loop.run_until_complete(self._redis_get_func_result())
+
+    def result_with_timeout(self, timeout):
+        return self.kohlrabi._loop.run_until_complete(self._redis_get_func_result(timeout=timeout))
 
 
 class ClientTaskBase(TaskBase):

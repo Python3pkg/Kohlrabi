@@ -28,5 +28,5 @@ def add(a, b):
 
 if __name__ == "__main__":
     a("hello, world")
-    added = add(1, 2).result
+    added = add(1, 2).result_with_timeout(0)
     print(added)
