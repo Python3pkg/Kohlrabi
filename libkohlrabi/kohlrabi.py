@@ -90,6 +90,18 @@ class Kohlrabi(object):
         """
         logger.info("Kohlrabi {} server-side object starting...".format(VERSION_S))
 
+    @asyncio.coroutine
+    def _server_register_on_redis(self):
+        with (yield from self.redis_conn) as redis:
+            assert isinstance(redis, aioredis.Redis)
+            redis.incr("kohlrabi-workers")
+
+    @asyncio.coroutine
+    def _server_deregister_on_redis(self):
+        with (yield from self.redis_conn) as redis:
+            assert isinstance(redis, aioredis.Redis)
+            redis.decr("kohlrabi-workers")
+
     def begin(self):
         """
         Start the Kohlrabi server.
@@ -98,11 +110,14 @@ class Kohlrabi(object):
 
         self._loop.create_task(self.serverside_task_loop())
 
+        self._loop.run_until_complete(self._server_register_on_redis())
+
         try:
             self._loop.run_forever()
         except (KeyboardInterrupt, EOFError):
             self._loop.stop()
         finally:
+            self._loop.run_until_complete(self._server_deregister_on_redis())
             self._loop.close()
         logger.info("Kohlrabi exiting.")
 
