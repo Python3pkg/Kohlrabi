@@ -31,6 +31,7 @@ def add(a, b):
 if __name__ == "__main__":
     # Call a() with hello world.
     # This is transmitted to the server.
-    a("hello, world")
+    qq = a("hello, world")
+    print(qq.finished)
     added = add(1, 2).result_with_timeout(1)
     print(added)

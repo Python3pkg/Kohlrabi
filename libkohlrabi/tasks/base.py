@@ -1,8 +1,13 @@
 """
 Base task class.
 """
-import asyncio
 import types
+import sys
+
+PY33 = sys.version_info[0:2] > (3, 3)
+
+if PY33:
+    import asyncio
 
 
 class TaskBase(object):
@@ -13,7 +18,8 @@ class TaskBase(object):
     def __init__(self, kh, func: types.FunctionType, id=None):
         self._func = func
         self.coro = self._wrap_func(func)
-        self.loop = asyncio.get_event_loop()
+        if PY33:
+            self.loop = asyncio.get_event_loop()
 
         self.kohlrabi = kh
 
@@ -29,7 +35,8 @@ class TaskBase(object):
         if (func_obj.__code__.co_flags & 0x180) or (func_obj.__code__.co_flags & 0x20):
             return func_obj
         else:
-            return asyncio.coroutine(func_obj)
+            if PY33:
+                return asyncio.coroutine(func_obj)
 
     def invoke_func(self, *args, **kwargs):
         """
